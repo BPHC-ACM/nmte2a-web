@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'; // Don't forget React import
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+// import Schedule from './pages/Schedule'; // See note below
+import AcadsMap from './pages/AcadsMap';
+import CampusMap from './pages/CampusMap';
+
+// CORRECTION HERE: Check if 'speaker' data exists
+const isAuthenticated = () => {
+  const user = localStorage.getItem('speaker');
+  return user !== null; // Returns true if user data exists
+};
+
+const ProtectedRoute = ({ children }) =>
+  isAuthenticated() ? children : <Navigate to="/login" replace />;
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        {/* DEFAULT PAGE */}
+        <Route path="/" element={<Home />} />
+
+        {/* PUBLIC */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Make maps public or protected based on your preference */}
+        <Route path="/acads-map" element={<AcadsMap />} />
+        <Route path="/campus-map" element={<CampusMap />} />
+
+        {/* PROTECTED */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Note: The Dashboard I designed already includes the Schedule. 
+            You might not need a separate /schedule route unless you want a dedicated page. */}
+        {/* <Route
+          path="/schedule"
+          element={
+            <ProtectedRoute>
+              <Schedule />
+            </ProtectedRoute>
+          }
+        /> */}
+
+        {/* FALLBACK */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
