@@ -1,24 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { User, Phone, LogIn, ArrowLeft, Loader2, Heart } from 'lucide-react';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    id: '',
-    mobile: '',
-  });
+  const [formData, setFormData] = useState({ id: '', mobile: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  /* Handle Input */
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -27,115 +16,117 @@ const Login = () => {
     if (error) setError('');
   };
 
-  /* Handle Login */
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      // Basic Validation
       if (!formData.id || !formData.mobile) {
         throw new Error('Please fill in both fields.');
       }
-// --- DEV MODE START ---
-  // If user enters "test" and "123", let them in without checking Supabase
-  if (formData.id === 'test' && formData.mobile === '123') {
-     const mockUser = { 
-       speaker_id: 'test', 
-       name: 'Developer Mode', 
-       mobile_number: '123' 
-     };
-     localStorage.setItem('speaker', JSON.stringify(mockUser));
-     navigate('/dashboard');
-     return; // Stop here so we don't call Supabase
-  }
-// --- DEV MODE END ---
+      // Query Supabase
       const { data, error: dbError } = await supabase
         .from('speakers')
         .select('*')
         .eq('speaker_id', formData.id)
         .eq('mobile_number', formData.mobile)
-        .limit(1);
+        .maybeSingle();
 
-      if (dbError) throw dbError;
-      if (!data || data.length === 0) {
-        throw new Error('Invalid Speaker ID or Mobile Number.');
+      // Check for Database Errors
+      if (dbError) {
+        console.error('Supabase Error:', dbError);
+        throw new Error('System error. Please try again later.');
       }
 
-      /* Save auth + speaker data */
+      // Check if User Exists
+      if (!data) {
+        throw new Error('Invalid Speaker ID or Mobile Number.');
+      }
       localStorage.setItem('speakerAuth', 'true');
-      localStorage.setItem('speaker', JSON.stringify(data[0]));
+      localStorage.setItem('speaker', JSON.stringify(data));
 
       navigate('/dashboard', { replace: true });
 
     } catch (err) {
-      setError(err.message || 'Login failed.');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-purple-100 p-4">
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-purple-100 p-4">
+      
+      {/* Glassmorphism Card */}
+      <div className="w-full max-w-md bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
 
         {/* Header */}
-        <div className="bg-indigo-600 p-8 text-center text-white relative">
+        <div className="bg-indigo-600 p-8 text-center text-white relative overflow-hidden">
+          {/* Decorative Background Element */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+
+          {/* Back Button */}
           <Link
             to="/"
-            className="absolute top-4 left-4 p-2 bg-white/20 rounded-lg hover:bg-white/30 transition"
+            className="absolute top-4 left-4 p-2 bg-white/20 rounded-lg hover:bg-white/30 transition text-white"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
 
-          <h1 className="text-2xl font-bold">Speaker Login</h1>
-          <p className="text-indigo-100 mt-2 text-sm">
-            NMTE2A Conference
+          <h1 className="relative z-10 text-2xl font-bold tracking-tight">Speaker Login</h1>
+          <p className="relative z-10 text-indigo-100 mt-2 text-sm font-medium">
+            NMTE2A Conference Portal
           </p>
         </div>
 
-        {/* Form */}
+        {/* Form Section */}
         <div className="p-8">
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
 
-            {/* Speaker ID */}
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            {/* Speaker ID Input */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <User className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+              </div>
               <input
                 type="text"
                 name="id"
                 placeholder="Speaker ID"
                 value={formData.id}
                 onChange={handleChange}
-                className="w-full pl-11 py-3 rounded-xl border border-gray-200 focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 pl-11 text-gray-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
               />
             </div>
 
-            {/* Mobile */}
-            <div className="relative">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            {/* Mobile Input */}
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Phone className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+              </div>
               <input
                 type="tel"
                 name="mobile"
                 placeholder="Mobile Number"
                 value={formData.mobile}
                 onChange={handleChange}
-                className="w-full pl-11 py-3 rounded-xl border border-gray-200 focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 pl-11 text-gray-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
               />
             </div>
 
-            {/* Error */}
+            {/* Error Message Display */}
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm text-center animate-in fade-in slide-in-from-top-2">
                 {error}
               </div>
             )}
 
-            {/* Submit */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 py-4 text-white font-semibold hover:bg-indigo-700 transition disabled:opacity-70"
+              className="flex items-center justify-center gap-2 w-full rounded-xl bg-indigo-600 py-4 text-white font-semibold shadow-md hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all duration-200"
             >
               {loading ? (
                 <>
@@ -152,14 +143,14 @@ const Login = () => {
           </form>
         </div>
 
-        {/* Footer Text */}
+        {/* Footer */}
         <div className="bg-gray-50 p-4 text-center border-t border-gray-100">
-          <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
-            © 2026 Conference Team | Made with 
-            <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> 
-            by <a href="https://acmbphc.in/" target="_blank" rel="noopener noreferrer" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">ACM</a>
-          </p>
-        </div>
+                    <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                      © 2026 Conference Team | Made with 
+                      <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> 
+                      by <a href="https://acmbphc.in/" target="_blank" rel="noopener noreferrer" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">ACM</a>
+                    </p>
+          </div>
       </div>
     </div>
   );
