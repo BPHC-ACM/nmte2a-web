@@ -1,8 +1,20 @@
+import CampusMap from "./CampusMap";
+
 const AcadsMap = () => {
+  const academicsLocations = [
+    {
+      name: "F Block",
+      position: [17.544826, 78.571054],
+    },
+    {
+      name: "New Acad block",
+      position: [17.545711, 78.570051],
+    },
+    // add more locations
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-semibold">Academic Block Map</h1>
-    </div>
+    <CampusMap center={[17.545388, 78.570625]} locations={academicsLocations} />
   );
 };
 
