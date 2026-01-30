@@ -19,7 +19,7 @@ const Home = () => {
             </h1>
             <p className="relative z-10 text-indigo-100 mt-2 font-medium flex items-center justify-center gap-2">
               <CalendarDays className="w-4 h-4" />
-              Speaker Portal
+              User Portal
             </p>
         </div>
 
@@ -33,7 +33,7 @@ const Home = () => {
               className="flex items-center justify-center gap-3 w-full rounded-xl bg-indigo-600 py-4 text-white font-semibold shadow-md hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
             >
               <LogIn className="w-5 h-5" />
-              Speaker Login
+              User Login
             </Link>
           </div>
 
