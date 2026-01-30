@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Trash2, UserPlus, Lock, Save, Loader2, Edit2, Plus, X, Search, LogOut, Calendar, Users, Clock, MapPin } from 'lucide-react';
-import toast from 'react-hot-toast'; // <--- ADDED THIS IMPORT
+import toast from 'react-hot-toast';
 
 const Admin = () => {
   const [session, setSession] = useState(null);
@@ -93,6 +93,7 @@ const Admin = () => {
         .single();
         
       if (spkErr) throw spkErr;
+
       await supabase.from('personal_sessions').delete().eq('speaker_id', spk.speaker_id);
       if (userSessions.length > 0) {
         const { error: sessErr } = await supabase.from('personal_sessions').insert(
@@ -121,6 +122,7 @@ const Admin = () => {
     setIsEditingUser(true);
     setUserForm({ id: user.id, speaker_id: user.speaker_id, name: user.name, phone: user.phone });
     setUserSessions(user.personal_sessions.map(({ title, time, venue }) => ({ title, time, venue })));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const resetUserForm = () => {
@@ -240,7 +242,7 @@ const Admin = () => {
           {activeTab === 'users' && (
             <>
               {/* LEFT: USER FORM */}
-              <div className="lg:col-span-5 h-fit sticky top-4">
+              <div className="lg:col-span-5 h-fit lg:sticky lg:top-4">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-indigo-100">
                   <h2 className="text-xl font-bold text-indigo-700 mb-6 flex gap-2">
                     {isEditingUser ? <Edit2 className="w-5 h-5"/> : <UserPlus className="w-5 h-5"/>} 
@@ -335,7 +337,7 @@ const Admin = () => {
           {activeTab === 'schedule' && (
             <>
               {/* LEFT: SCHEDULE FORM */}
-              <div className="lg:col-span-4 h-fit sticky top-4">
+              <div className="lg:col-span-4 h-fit lg:sticky lg:top-4">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-indigo-100">
                   <h2 className="text-xl font-bold text-indigo-700 mb-6 flex gap-2">
                     {isEditingSchedule ? <Edit2 className="w-5 h-5"/> : <Calendar className="w-5 h-5"/>} 
