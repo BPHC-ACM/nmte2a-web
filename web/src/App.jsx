@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import AcadsMap from './pages/AcadsMap';
 import CampusMap from './pages/CampusMap';
 import Admin from './pages/Admin';
+import Schedule from './pages/Schedule';
 import { Toaster } from 'react-hot-toast';
 
 const isAuthenticated = () => {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/acads-map" element={<AcadsMap />} />
         <Route path="/campus-map" element={<CampusMap />} />
+        <Route path="/schedule" element={<Schedule />} />
         <Route path="/admin" element={<Admin />} />
         {/* PROTECTED */}
         <Route

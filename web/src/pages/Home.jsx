@@ -33,7 +33,7 @@ const Home = () => {
               className="flex items-center justify-center gap-3 w-full rounded-xl bg-indigo-600 py-4 text-white font-semibold shadow-md hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
             >
               <LogIn className="w-5 h-5" />
-              User Login
+              Speaker Login
             </Link>
           </div>
 
@@ -46,6 +46,17 @@ const Home = () => {
 
           {/* Secondary Actions: Maps */}
           <div className="space-y-3">
+            <Link
+              to="/schedule"
+              className="group flex items-center justify-between w-full rounded-xl border border-gray-200 bg-white px-5 py-3 text-gray-700 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
+            >
+              <span className="flex items-center gap-3 font-medium">
+                <CalendarDays className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
+                Event Schedule
+              </span>
+              <span className="text-gray-400 group-hover:text-blue-600 transition-colors">→</span>
+            </Link>
+
             <Link
               to="/acads-map"
               className="group flex items-center justify-between w-full rounded-xl border border-gray-200 bg-white px-5 py-3 text-gray-700 hover:border-green-500 hover:bg-green-50 transition-all duration-200"

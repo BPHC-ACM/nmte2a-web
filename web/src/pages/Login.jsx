@@ -45,7 +45,7 @@ const Login = () => {
 
       // 4. Handle Invalid Credentials
       if (!data) {
-        throw new Error('Invalid Speaker ID or Mobile Number.');
+        throw new Error('Invalid Unique ID or Mobile Number.');
       }
 
       // 5. Success
@@ -83,7 +83,7 @@ const Login = () => {
             <ArrowLeft className="w-4 h-4" />
           </Link>
 
-          <h1 className="relative z-10 text-2xl font-bold tracking-tight">User Login</h1>
+          <h1 className="relative z-10 text-2xl font-bold tracking-tight">Speaker Login</h1>
           <p className="relative z-10 text-indigo-100 mt-2 text-sm font-medium">
             NMTE2A Conference Portal
           </p>
@@ -116,7 +116,7 @@ const Login = () => {
               <input
                 type="tel"
                 name="mobile"
-                placeholder="Mobile Number/Password"
+                placeholder="Mobile Number"
                 value={formData.mobile}
                 onChange={handleChange}
                 className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 pl-11 text-gray-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
