@@ -5,10 +5,12 @@ import "leaflet/dist/leaflet.css";
 
 import L from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
+import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
+  iconRetinaUrl: iconRetina,
   iconUrl: icon,
   shadowUrl: iconShadow,
 });
@@ -40,6 +42,15 @@ export default function CampusMap({
 } = {}) {
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    const user = localStorage.getItem('speaker');
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="w-full h-screen relative">
       <div className="w-full h-full">
@@ -62,7 +73,7 @@ export default function CampusMap({
         </MapContainer>
       </div>
       <button
-        onClick={() => navigate("/dashboard")}
+        onClick={handleBack}
         className="fixed top-4 right-4 pointer-events-auto flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-full transition shadow-lg"
         style={{ zIndex: 10000 }}
       >

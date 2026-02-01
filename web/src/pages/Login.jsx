@@ -2,55 +2,63 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { User, Phone, LogIn, ArrowLeft, Loader2, Heart } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ id: '', mobile: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value.trim(),
     });
-    if (error) setError('');
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // 1. Basic Validation
+    if (!formData.id || !formData.mobile) {
+      toast.error('Please fill in both fields.');
+      return;
+    }
+
     setLoading(true);
-    setError('');
+    const toastId = toast.loading('Verifying credentials...');
 
     try {
-      // Basic Validation
-      if (!formData.id || !formData.mobile) {
-        throw new Error('Please fill in both fields.');
-      }
-      // Query Supabase
+      // 2. Query Supabase
       const { data, error: dbError } = await supabase
         .from('speakers')
         .select('*')
         .eq('speaker_id', formData.id)
-        .eq('mobile_number', formData.mobile)
+        .eq('phone', formData.mobile)
         .maybeSingle();
 
-      // Check for Database Errors
+      // 3. Handle Database Errors
       if (dbError) {
         console.error('Supabase Error:', dbError);
         throw new Error('System error. Please try again later.');
       }
 
-      // Check if User Exists
+      // 4. Handle Invalid Credentials
       if (!data) {
-        throw new Error('Invalid Speaker ID or Mobile Number.');
+        throw new Error('Invalid Unique ID or Mobile Number.');
       }
+
+      // 5. Success
+      toast.success(`Welcome back, ${data.name || 'User'}!`, { id: toastId });
+      
       localStorage.setItem('speakerAuth', 'true');
       localStorage.setItem('speaker', JSON.stringify(data));
 
       navigate('/dashboard', { replace: true });
 
     } catch (err) {
-      setError(err.message);
+      // 6. Catch & Display Errors
+      toast.error(err.message, { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -85,7 +93,7 @@ const Login = () => {
         <div className="p-8">
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
 
-            {/* Speaker ID Input */}
+            {/* ID Input */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -93,7 +101,7 @@ const Login = () => {
               <input
                 type="text"
                 name="id"
-                placeholder="Speaker ID"
+                placeholder="Unique ID"
                 value={formData.id}
                 onChange={handleChange}
                 className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 pl-11 text-gray-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
@@ -114,13 +122,6 @@ const Login = () => {
                 className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 pl-11 text-gray-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
               />
             </div>
-
-            {/* Error Message Display */}
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm text-center animate-in fade-in slide-in-from-top-2">
-                {error}
-              </div>
-            )}
 
             {/* Submit Button */}
             <button
@@ -145,12 +146,12 @@ const Login = () => {
 
         {/* Footer */}
         <div className="bg-gray-50 p-4 text-center border-t border-gray-100">
-                    <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
-                      © 2026 Conference Team | Made with 
-                      <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> 
-                      by <a href="https://acmbphc.in/" target="_blank" rel="noopener noreferrer" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">ACM</a>
-                    </p>
-          </div>
+            <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+              © 2026 Conference Team | Made with 
+              <Heart className="w-3 h-3 text-red-500 fill-red-500 animate-pulse" /> 
+              by <a href="https://acmbphc.in/" target="_blank" rel="noopener noreferrer" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">ACM</a>
+            </p>
+        </div>
       </div>
     </div>
   );
