@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Crosshair, MapPin, ExternalLink } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useState } from "react";
@@ -32,7 +33,7 @@ const categories = [
       {
         label: "Mess 1",
         pos: [17.542596, 78.574085],
-        menuImage: "/mess_menu.jpg",
+        menuImage: "/mess_1_menu.jpg",
       },
       { label: "Bits & Bytes", pos: [17.543184, 78.574353] },
       { label: "Yumpies", pos: [17.542754, 78.574036] },
@@ -45,7 +46,7 @@ const categories = [
       {
         label: "Mess 2",
         pos: [17.54456, 78.575093],
-        menuImage: "/mess_menu.jpg",
+        menuImage: "/mess_2_menu.jpg",
       },
     ],
   },
@@ -71,7 +72,7 @@ export default function CampusMap({
   });
   const [activeCategory, setActiveCategory] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [showFullscreenMenu, setShowFullscreenMenu] = useState(false); // New state for modal
+  const [showFullscreenMenu, setShowFullscreenMenu] = useState(false);
 
   const navigate = useNavigate();
 
@@ -109,7 +110,7 @@ export default function CampusMap({
                       {opt.menuImage ? (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevents the map from intercepting the click
+                            e.stopPropagation(); 
                             setSelectedLocation(opt);
                             setShowFullscreenMenu(true);
                           }}
@@ -133,35 +134,75 @@ export default function CampusMap({
 
       {/* Fullscreen Menu Modal */}
       {showFullscreenMenu && selectedLocation?.menuImage && (
-        <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4">
-          {/* Backdrop: Clicking this closes the menu */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
-            onClick={() => setShowFullscreenMenu(false)}
-          />
-
+        <div className="fixed inset-0 z-[20000] flex items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
           {/* Menu Image Container */}
-          <div className="relative z-10 max-w-4xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-2xl font-black text-gray-900">
+          <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-4xl bg-white sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b bg-white z-10 shrink-0">
+              <h2 className="text-lg sm:text-2xl font-black text-gray-900 truncate pr-2">
                 {selectedLocation.label} Menu
               </h2>
               <button
                 onClick={() => setShowFullscreenMenu(false)}
-                className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors"
+                className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors shrink-0"
               >
                 ✕
               </button>
             </div>
-            <div className="p-4 max-h-[70vh] overflow-y-auto">
-              <img
-                src={selectedLocation.menuImage}
-                alt="Fullscreen Menu"
-                className="w-full h-auto rounded-xl"
-              />
+            
+            {/* Image Content - With Pinch Zoom */}
+            <div className="flex-1 overflow-hidden bg-gray-50 relative w-full h-full">
+              <TransformWrapper
+                initialScale={1}
+                minScale={1}
+                maxScale={4}
+                centerOnInit={true}
+                wrapperStyle={{ width: "100%", height: "100%" }}
+              >
+                {({ zoomIn, zoomOut, resetTransform }) => (
+                  <React.Fragment>
+                    {/* Floating Zoom Controls for Desktop/Accessibility */}
+                    <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
+                      <button
+                        onClick={() => zoomIn()}
+                        className="bg-white hover:bg-gray-100 w-10 h-10 rounded-full shadow-lg border border-gray-200 flex items-center justify-center text-xl font-bold text-gray-700"
+                        title="Zoom In"
+                      >
+                        +
+                      </button>
+                      <button
+                        onClick={() => zoomOut()}
+                        className="bg-white hover:bg-gray-100 w-10 h-10 rounded-full shadow-lg border border-gray-200 flex items-center justify-center text-xl font-bold text-gray-700"
+                        title="Zoom Out"
+                      >
+                        −
+                      </button>
+                      <button
+                        onClick={() => resetTransform()}
+                        className="bg-white hover:bg-gray-100 px-3 py-2 rounded-full shadow-lg border border-gray-200 text-xs font-bold text-gray-700"
+                      >
+                        Reset
+                      </button>
+                    </div>
+
+                    <TransformComponent
+                      wrapperStyle={{ width: "100%", height: "100%" }} 
+                      contentStyle={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    >
+                      <img
+                        src={selectedLocation.menuImage}
+                        alt="Fullscreen Menu"
+                        className="max-w-none w-full sm:w-auto h-auto sm:max-h-[85vh] object-contain"
+                      />
+                    </TransformComponent>
+                  </React.Fragment>
+                )}
+              </TransformWrapper>
             </div>
-            <div className="p-4 bg-gray-50 text-center text-sm text-gray-500 font-medium italic">
-              Click anywhere outside to return to map
+
+            {/* Footer */}
+            <div className="p-3 bg-white border-t text-center text-xs sm:text-sm text-gray-500 font-medium shrink-0 z-20">
+               Pinch or use buttons to zoom
             </div>
           </div>
         </div>
@@ -228,46 +269,10 @@ export default function CampusMap({
         <span>Back</span>
       </button>
 
-      <div
-        className="fixed top-20 left-4 w-64 flex flex-col gap-2"
-        style={{ zIndex: 10000 }}
-      >
-        {categories.map((cat) => (
-          <div key={cat.id} className="flex flex-col gap-1">
-            {/* Parent Button */}
-            <button
-              onClick={() =>
-                setActiveCategory(activeCategory === cat.id ? null : cat.id)
-              }
-              className="w-full bg-white hover:bg-gray-50 text-gray-800 font-bold py-3 px-4 rounded-lg shadow-md border-l-4 border-blue-600 flex justify-between items-center"
-            >
-              {cat.name}
-              <span>{activeCategory === cat.id ? "−" : "+"}</span>
-            </button>
 
-            {/* Collapsible Sub-Buttons */}
-            {activeCategory === cat.id && (
-              <div className="flex flex-col gap-1 pl-4 transition-all">
-                {cat.options.map((opt) => (
-                  <button
-                    key={opt.label}
-                    onClick={() => {
-                      setMapCenter(opt.pos);
-                      setSelectedLocation(opt); // This tells the panel to show the image
-                    }}
-                    className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-4 rounded-md text-sm font-medium border border-blue-200 text-left"
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
       {/* This panel ONLY appears if there is a selected location AND it has an image */}
       {selectedLocation?.menuImage && (
-        <div className="fixed bottom-20 right-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-[10000]">
+        <div className="fixed bottom-20 right-4 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-[10000]">
           <div className="flex justify-between items-center p-4 border-b bg-gray-50">
             <h3 className="font-bold text-gray-800">
               {selectedLocation.label}
@@ -280,12 +285,20 @@ export default function CampusMap({
             </button>
           </div>
 
-          <div className="p-2">
+          <div 
+            className="p-2 cursor-pointer relative group"
+            onClick={() => setShowFullscreenMenu(true)}
+          >
             <img
               src={selectedLocation.menuImage}
               alt="Menu"
-              className="w-full h-auto rounded-lg shadow-sm"
+              className="w-full h-auto rounded-lg shadow-sm transition-transform group-hover:scale-[1.02]"
             />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg">
+                <span className="bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                   <ExternalLink size={12} /> Expand
+                </span>
+            </div>
           </div>
         </div>
       )}

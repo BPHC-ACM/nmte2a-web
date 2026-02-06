@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, ArrowLeft, Loader2, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Calendar, MapPin, ArrowLeft, Loader2, CheckCircle2, PlusCircle, Briefcase, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Schedule = () => {
@@ -104,67 +104,31 @@ const Schedule = () => {
                     </h2>
                     <span className="text-xs font-medium text-gray-500">{sessions.length} Sessions</span>
                   </div>
-                  <div className="divide-y divide-gray-100">
+                  <div className="space-y-3 p-4">
                     {sessions.map((session) => {
                       const isSaved = savedSessions.includes(session.id);
                       return (
-                        <div 
-                            key={session.id} 
-                            onClick={() => toggleSession(session.id)}
-                            className={`p-5 transition-all cursor-pointer group ${isSaved ? 'bg-indigo-50/40 hover:bg-indigo-50/60' : 'hover:bg-gray-50'}`}
-                        >
-                          <div className="flex flex-col md:flex-row md:items-start gap-4">
-                            
-                            <div className="md:w-32 flex-shrink-0">
-                               <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium ${isSaved ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>
-                                  <Clock className="w-3.5 h-3.5" />
-                                  {session.time}
-                               </div>
-                            </div>
-                            
-                            <div className="flex-grow">
-                               <div className="flex items-start justify-between gap-4">
-                                  <div className="flex-grow">
-                                      <h3 className={`text-base font-semibold mb-1 transition-colors ${isSaved ? 'text-indigo-900' : 'text-gray-900'}`}>{session.title}</h3>
-                                      
-                                      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-                                          {session.type && (
-                                              <span className="text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-xs uppercase tracking-wide font-medium">
-                                                  {session.type}
-                                              </span>
-                                          )}
-                                          {session.venue && (
-                                              <span className="flex items-center gap-1 text-gray-500">
-                                                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                                                  {session.venue}
-                                              </span>
-                                          )}
-                                      </div>
-  
-                                      {session.session_chair && (
-                                          <p className="mt-2 text-sm text-indigo-600 font-medium">
-                                              Chair: {session.session_chair}
-                                          </p>
-                                      )}
-                                  </div>
-                                  
-                                  <div className="flex-shrink-0">
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleSession(session.id);
-                                        }}
-                                        className={`p-2 rounded-full transition-all ${isSaved ? 'text-indigo-600 bg-indigo-100' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'}`}
-                                        title={isSaved ? "Remove from saved" : "Save locally"}
-                                    >
-                                        {isSaved ? <BookmarkCheck className="w-6 h-6" /> : <Bookmark className="w-6 h-6" />}
-                                    </button>
-                                  </div>
-                               </div>
-                            </div>
-  
+                        <div key={session.id} onClick={() => toggleSession(session.id)} className={`flex justify-between p-4 rounded-xl border cursor-pointer transition ${isSaved ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 hover:bg-gray-50'}`}>
+                        <div className="flex-1">
+                          <div className="flex gap-2 mb-1"><span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 rounded-full">{session.time}</span><span className="text-xs text-gray-400">{session.type}</span></div>
+                          <h4 className={`font-semibold ${isSaved ? 'text-indigo-900' : 'text-gray-700'}`}>{session.title}</h4>
+                          <div className="flex flex-col gap-1 mt-1">
+                            {session.session_chair && (
+                                <p className="text-xs text-indigo-500 flex items-center gap-1">
+                                    <Briefcase className="w-3 h-3"/> Chair: {session.session_chair}
+                                </p>
+                            )}
+                            {session.session_coordinator && (
+                                <p className="text-xs text-indigo-500 flex items-center gap-1">
+                                    <Users className="w-3 h-3"/> Coord: {session.session_coordinator}
+                                </p>
+                            )}
                           </div>
+                          
+                          <p className="text-xs text-gray-500 mt-1 flex gap-1"><MapPin className="w-3 h-3"/> {session.venue}</p>
                         </div>
+                        <div className="pl-4">{isSaved ? <CheckCircle2 className="w-6 h-6 text-indigo-600"/> : <PlusCircle className="w-6 h-6 text-gray-300"/>}</div>
+                      </div>
                       );
                     })}
                   </div>

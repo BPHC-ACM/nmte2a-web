@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Trash2, UserPlus, Lock, Save, Loader2, Edit2, Plus, X, Search, LogOut, Calendar, Users, Clock, MapPin } from 'lucide-react';
+import { Trash2, UserPlus, Lock, Loader2, Edit2, Plus, X, Search, LogOut, Calendar, Users, Clock, MapPin, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Admin = () => {
@@ -29,7 +29,8 @@ const Admin = () => {
     type: 'Session',
     title: '',
     venue: '',
-    session_chair: ''
+    session_chair: '',
+    session_coordinator: '' // <--- ADDED COORDINATOR
   });
 
   // ==========================================
@@ -176,7 +177,16 @@ const Admin = () => {
 
   const resetScheduleForm = () => {
     setIsEditingSchedule(false);
-    setScheduleForm({ id: null, day: 'Day 1 (Feb 7)', time: '', type: 'Session', title: '', venue: '', session_chair: '' });
+    setScheduleForm({ 
+      id: null, 
+      day: 'Day 1 (Feb 7)', 
+      time: '', 
+      type: 'Session', 
+      title: '', 
+      venue: '', 
+      session_chair: '', 
+      session_coordinator: ''
+    });
   };
 
 
@@ -236,12 +246,10 @@ const Admin = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          {/* ======================= */}
-          {/* TAB 1: MANAGE USERS     */}
-          {/* ======================= */}
+          {/* TAB 1: MANAGE USERS */}
           {activeTab === 'users' && (
             <>
-              {/* LEFT: USER FORM */}
+              {/* USER FORM */}
               <div className="lg:col-span-5 h-fit lg:sticky lg:top-4">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-indigo-100">
                   <h2 className="text-xl font-bold text-indigo-700 mb-6 flex gap-2">
@@ -263,8 +271,6 @@ const Admin = () => {
                       <label className="text-[10px] font-bold text-gray-400 uppercase">Full Name</label>
                       <input className="w-full p-2 border rounded text-sm" value={userForm.name} onChange={e => setUserForm({...userForm, name: e.target.value})} />
                     </div>
-                    
-                    {/* User's Assigned Sessions */}
                     <div className="pt-4 border-t border-gray-100">
                       <div className="flex justify-between mb-2">
                         <label className="text-[10px] font-bold text-gray-400 uppercase">Personal Sessions</label>
@@ -283,7 +289,6 @@ const Admin = () => {
                         ))}
                       </div>
                     </div>
-
                     <button disabled={loading} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
                       {loading ? <Loader2 className="animate-spin mx-auto"/> : (isEditingUser ? "Save Changes" : "Create User")}
                     </button>
@@ -292,7 +297,7 @@ const Admin = () => {
                 </div>
               </div>
 
-              {/* RIGHT: USER LIST */}
+              {/* USER LIST */}
               <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[80vh]">
                 <div className="p-4 border-b bg-gray-50 flex gap-4">
                   <div className="relative flex-1">
@@ -331,12 +336,10 @@ const Admin = () => {
             </>
           )}
 
-          {/* ======================= */}
-          {/* TAB 2: MASTER SCHEDULE  */}
-          {/* ======================= */}
+          {/* TAB 2: MASTER SCHEDULE */}
           {activeTab === 'schedule' && (
             <>
-              {/* LEFT: SCHEDULE FORM */}
+              {/* SCHEDULE FORM */}
               <div className="lg:col-span-4 h-fit lg:sticky lg:top-4">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-indigo-100">
                   <h2 className="text-xl font-bold text-indigo-700 mb-6 flex gap-2">
@@ -385,9 +388,15 @@ const Admin = () => {
                         <input className="w-full p-2 border rounded text-sm" placeholder="Room/Hall" value={scheduleForm.venue} onChange={e => setScheduleForm({...scheduleForm, venue: e.target.value})} />
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-gray-400 uppercase">Chair (Optional)</label>
+                        <label className="text-[10px] font-bold text-gray-400 uppercase">Chair</label>
                         <input className="w-full p-2 border rounded text-sm" placeholder="Dr. Name" value={scheduleForm.session_chair} onChange={e => setScheduleForm({...scheduleForm, session_chair: e.target.value})} />
                       </div>
+                    </div>
+
+                    {/* COORDINATOR */}
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-400 uppercase">Coordinator</label>
+                      <input className="w-full p-2 border rounded text-sm" placeholder="Prof. Name" value={scheduleForm.session_coordinator} onChange={e => setScheduleForm({...scheduleForm, session_coordinator: e.target.value})} />
                     </div>
 
                     <button disabled={loading} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
@@ -398,7 +407,7 @@ const Admin = () => {
                 </div>
               </div>
 
-              {/* RIGHT: SCHEDULE LIST */}
+              {/* SCHEDULE LIST */}
               <div className="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col h-[80vh]">
                 <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
                   <h3 className="font-bold text-gray-700">All Events</h3>
@@ -420,7 +429,12 @@ const Admin = () => {
                           <td className="p-3 align-top">
                             <div className="text-xs font-bold uppercase text-gray-400 mb-1">{item.type}</div>
                             <div className="font-medium text-sm text-gray-800">{item.title}</div>
-                            {item.session_chair && <div className="text-xs text-indigo-600 mt-1">Chair: {item.session_chair}</div>}
+                            
+                            {/* DISPLAY CHAIR AND COORDINATOR */}
+                            <div className="flex flex-col gap-1 mt-1">
+                                {item.session_chair && <div className="text-xs text-indigo-600 flex items-center gap-1"><Briefcase className="w-3 h-3"/> Chair: {item.session_chair}</div>}
+                                {item.session_coordinator && <div className="text-xs text-indigo-600 flex items-center gap-1"><Users className="w-3 h-3"/> Coord: {item.session_coordinator}</div>}
+                            </div>
                           </td>
                           <td className="p-3 text-right align-top whitespace-nowrap">
                             <button onClick={() => editScheduleItem(item)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded mr-1"><Edit2 className="w-4 h-4"/></button>

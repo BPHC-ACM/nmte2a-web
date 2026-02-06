@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { LogOut, Map, Navigation, Clock, MapPin, Calendar, CheckCircle2, PlusCircle, User, Loader2 } from 'lucide-react';
+import { LogOut, Map, Navigation, MapPin, Calendar, CheckCircle2, PlusCircle, User, Loader2, FileText, Briefcase, Users } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Get Logged In User
         const storedSpeaker = localStorage.getItem('speaker');
         if (!storedSpeaker) {
           navigate('/login');
@@ -26,14 +25,12 @@ const Dashboard = () => {
         const savedSchedule = localStorage.getItem(`schedule_${parsedSpeaker.speaker_id}`);
         if (savedSchedule) setAttending(JSON.parse(savedSchedule));
 
-        // 2. Fetch General Schedule
         const { data: scheduleData } = await supabase
           .from('schedule')
           .select('*')
           .order('id', { ascending: true });
         setSchedule(scheduleData || []);
 
-        // 3. Fetch User's Personal Sessions
         const { data: myData } = await supabase
           .from('personal_sessions')
           .select('*')
@@ -118,8 +115,16 @@ const Dashboard = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* MAPS SIDEBAR */}
+          {/* SIDEBAR */}
           <div className="order-1 lg:order-2 lg:sticky lg:top-8 space-y-4">
+            
+            {/* BROCHURE CARD */}
+            <a href="/brochure.pdf" target="_blank" rel="noopener noreferrer" className="block bg-blue-600 text-white p-4 rounded-2xl shadow-lg hover:-translate-y-1 transition cursor-pointer relative overflow-hidden group h-32">
+              <FileText className="w-8 h-8 mb-2 z-10 relative"/>
+              <div className="relative z-10"><h4 className="font-bold">Conference Brochure</h4><p className="text-xs text-blue-100">View Full PDF</p></div>
+              <FileText className="absolute -bottom-4 -right-4 w-20 h-20 text-blue-500 opacity-50 group-hover:scale-110 transition"/>
+            </a>
+
             <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
               <div onClick={() => navigate('/acads-map')} className="bg-green-600 text-white p-4 rounded-2xl shadow-lg hover:-translate-y-1 transition cursor-pointer relative overflow-hidden group h-32">
                 <Map className="w-8 h-8 mb-2 z-10 relative"/>
@@ -146,7 +151,19 @@ const Dashboard = () => {
                         <div className="flex-1">
                           <div className="flex gap-2 mb-1"><span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-2 rounded-full">{session.time}</span><span className="text-xs text-gray-400">{session.type}</span></div>
                           <h4 className={`font-semibold ${attending.includes(session.id) ? 'text-indigo-900' : 'text-gray-700'}`}>{session.title}</h4>
-                          {session.session_chair && <p className="text-xs text-indigo-500 mt-1">Chair: {session.session_chair}</p>}
+                          <div className="flex flex-col gap-1 mt-1">
+                            {session.session_chair && (
+                                <p className="text-xs text-indigo-500 flex items-center gap-1">
+                                    <Briefcase className="w-3 h-3"/> Chair: {session.session_chair}
+                                </p>
+                            )}
+                            {session.session_coordinator && (
+                                <p className="text-xs text-indigo-500 flex items-center gap-1">
+                                    <Users className="w-3 h-3"/> Coord: {session.session_coordinator}
+                                </p>
+                            )}
+                          </div>
+                          
                           <p className="text-xs text-gray-500 mt-1 flex gap-1"><MapPin className="w-3 h-3"/> {session.venue}</p>
                         </div>
                         <div className="pl-4">{attending.includes(session.id) ? <CheckCircle2 className="w-6 h-6 text-indigo-600"/> : <PlusCircle className="w-6 h-6 text-gray-300"/>}</div>
