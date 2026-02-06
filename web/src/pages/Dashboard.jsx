@@ -119,7 +119,7 @@ const Dashboard = () => {
           <div className="order-1 lg:order-2 lg:sticky lg:top-8 space-y-4">
             
             {/* BROCHURE CARD */}
-            <a href="/brochure.pdf" target="_blank" rel="noopener noreferrer" className="block bg-blue-600 text-white p-4 rounded-2xl shadow-lg hover:-translate-y-1 transition cursor-pointer relative overflow-hidden group h-32">
+            <a href="https://drive.google.com/drive/folders/1lBDxUFDHklpL7Ez2OVkSDn8zpr8Pu0pv?usp=sharing" target="_blank" rel="noopener noreferrer" className="block bg-blue-600 text-white p-4 rounded-2xl shadow-lg hover:-translate-y-1 transition cursor-pointer relative overflow-hidden group h-32">
               <FileText className="w-8 h-8 mb-2 z-10 relative"/>
               <div className="relative z-10"><h4 className="font-bold">Conference Brochure</h4><p className="text-xs text-blue-100">View Full PDF</p></div>
               <FileText className="absolute -bottom-4 -right-4 w-20 h-20 text-blue-500 opacity-50 group-hover:scale-110 transition"/>

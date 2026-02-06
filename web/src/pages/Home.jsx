@@ -47,7 +47,7 @@ const Home = () => {
           {/* Secondary Actions: Maps */}
           <div className="space-y-3">
              <a
-              href="/brochure.pdf"
+              href="https://drive.google.com/drive/folders/1lBDxUFDHklpL7Ez2OVkSDn8zpr8Pu0pv?usp=sharing"
               target="_blank" 
               rel="noopener noreferrer"
               className="group flex items-center justify-between w-full rounded-xl border border-gray-200 bg-white px-5 py-3 text-gray-700 hover:border-red-500 hover:bg-red-50 transition-all duration-200"
